@@ -5,29 +5,24 @@ from pathlib import Path
 st.set_page_config(page_title="MBTI by Country – Top 5", layout="centered")
 st.title("MBTI by Country — 상위 5행 미리보기")
 
-# 같은 폴더에 있는 CSV 파일명 (필요하면 바꿔주세요)
-DEFAULT_CSV = "mbti_by_country.csv"
+# CSV 파일명 지정
+CSV_FILE = "countriesMBTI_16types.csv"
 
-# 파일 탐색: 기본 파일명 우선, 없으면 폴더 내 첫 번째 CSV로 대체
-cwd = Path(__file__).parent
-target_path = cwd / DEFAULT_CSV
+# 현재 폴더 내 경로 확인
+target_path = Path(__file__).parent / CSV_FILE
 
 if not target_path.exists():
-    csv_candidates = sorted(cwd.glob("*.csv"))
-    if csv_candidates:
-        target_path = csv_candidates[0]
-        st.info(f"기본 파일 `{DEFAULT_CSV}`을(를) 찾지 못해, 폴더 내 첫 번째 CSV(`{target_path.name}`)를 사용합니다.")
-    else:
-        st.error("같은 폴더에서 CSV 파일을 찾지 못했습니다. CSV를 추가하거나 파일명을 확인하세요.")
-        st.stop()
+    st.error(f"파일 `{CSV_FILE}`을(를) 찾을 수 없습니다. 같은 폴더에 파일이 있는지 확인해주세요.")
+    st.stop()
 
-# CSV 로드 및 상위 5행 표시
+# CSV 불러오기
 try:
     df = pd.read_csv(target_path)
 except Exception as e:
-    st.error(f"CSV를 읽는 중 오류가 발생했습니다: {e}")
+    st.error(f"CSV를 읽는 중 오류 발생: {e}")
     st.stop()
 
+# 상위 5행 출력
 st.dataframe(df.head(5), use_container_width=True)
 st.caption(f"파일: `{target_path.name}` · 전체 행: {len(df):,} · 열: {len(df.columns)}")
 
