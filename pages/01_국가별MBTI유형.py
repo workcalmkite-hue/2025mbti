@@ -27,15 +27,16 @@ else:
 @st.cache_data
 def load_data(p: Path):
     df = pd.read_csv(p, encoding="utf-8", engine="python")
-    # 열 공백 제거
+    # 열 이름 공백 제거
     df.columns = [c.strip() for c in df.columns]
-    # 'Country' 열 식별(대소문자/공백 방어)
+
+    # Country 열 찾기 (대소문자/공백 방어)
     lower_map = {c.lower(): c for c in df.columns}
     if "country" not in lower_map:
         raise ValueError("CSV에 'Country' 열이 없습니다. 열 이름을 확인해 주세요.")
     country_col = lower_map["country"]
 
-    # 수치형 변환(실패는 NaN)
+    # 수치형 변환 (실패값 NaN)
     for c in df.columns:
         if c != country_col:
             df[c] = pd.to_numeric(df[c], errors="coerce")
@@ -45,10 +46,10 @@ def load_data(p: Path):
 try:
     df, country_col = load_data(latest_csv)
 except Exception as e:
-    st.error(f"CSV 읽기/정리 중 오류가 발생했습니다: {e}")
+    st.error(f"CSV 읽기/정리 중 오류 발생: {e}")
     st.stop()
 
-# --- MBTI 열 목록 산출 ---
+# --- MBTI 열 목록 ---
 mbti_cols = [c for c in df.columns if c != country_col]
 if not mbti_cols:
     st.error("MBTI 열을 찾을 수 없습니다. CSV 포맷을 확인해 주세요.")
@@ -63,7 +64,7 @@ top10["percentage"] = top10["Average"] * 100
 # --- Altair 막대 그래프 ---
 chart = (
     alt.Chart(top10)
-    .mark_bar()
+    .mark_bar(color="#7CC5D0")  # 파스텔 블루
     .encode(
         x=alt.X("percentage:Q", title="평균 비율(%)"),
         y=alt.Y("MBTI:N", sort="-x", title="MBTI 유형"),
@@ -72,17 +73,17 @@ chart = (
             alt.Tooltip("percentage:Q", title="평균 비율(%)", format=".2f"),
         ],
     )
-    .properties(width=650, height=420, title="🌍 전 세계 기준 평균 비율 Top 10")
+    .properties(width=650, height=420, title="🌍 전 세계 MBTI 평균 비율 Top 10")
 )
 
-# 값 라벨
+# 값 라벨 표시
 text = chart.mark_text(align="left", baseline="middle", dx=3).encode(
     text=alt.Text("percentage:Q", format=".1f")
 )
 
 st.altair_chart(chart + text, use_container_width=True)
 
-# --- 표(내림차순) ---
+# --- 표 표시 ---
 st.markdown("#### 🗒️ 데이터 (내림차순)")
 st.dataframe(
     top10[["MBTI", "percentage"]]
@@ -92,7 +93,7 @@ st.dataframe(
     use_container_width=True
 )
 
-# --- 디버그용(문제 발생 시 펼쳐서 확인) ---
+# --- 디버그용 ---
 with st.expander("🔧 디버그 정보"):
     st.write("열 목록:", df.columns.tolist())
     st.write("Country 열:", country_col)
