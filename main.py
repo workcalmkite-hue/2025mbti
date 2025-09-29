@@ -3,7 +3,10 @@ import pandas as pd
 from pathlib import Path
 
 st.set_page_config(page_title="MBTI by Country – Top 5", layout="centered")
-st.title("MBTI by Country — 상위 5행 미리보기")
+
+# 제목 꾸미기
+st.title("🌍 MBTI by Country")
+st.markdown("### 📊 데이터 상위 5줄 미리보기")
 
 # CSV 파일명 지정
 CSV_FILE = "countriesMBTI_16types.csv"
