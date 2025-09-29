@@ -10,6 +10,7 @@ st.markdown("### 📊 전 세계 MBTI 평균 상위 10개 유형")
 
 # CSV 파일명
 CSV_FILE = "countriesMBTI_16types.csv"
+
 target_path = Path(__file__).parent / CSV_FILE
 
 if not target_path.exists():
